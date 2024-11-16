@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Configuring a bash script
+# This bash script gets information from
+# a domain and subdomain
+
+researcher() {
+    domain=$1
+    subdomain=$2
+    record_type=$3
+
+    # Use dig to get the DNS record of the specified type for the subdomain
+    result=$(dig +short "$subdomain.$domain" "$record_type" | awk '{print $1}')
+
+    # If result is not empty, print the result
+    if [[ -n "$result" ]]; then
+        echo "The subdomain $subdomain is a $record_type record and points to $result"
+    else
+        echo "No record found for $subdomain.$domain"
+    fi
+}
+
+# Check that the domain argument is provided
+if [[ $# -eq 1 ]] && [[ "$1" =~ \.tech$|\.online$ ]]; then
+    for sub_domain in "www" "lb-01" "web-01" "web-02"; do
+	    researcher "$1" "$sub_domain" "A"
+    done
+elif [[ $# -eq 2 ]]; then
+	researcher "$1" "$2" "A"
+else
+	echo "Invalid Usage"
+fi
